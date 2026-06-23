@@ -10,13 +10,11 @@ SHOPEE_COOKIE = """SPC_F=8YPpw60uPneGBcs5Wdow5JMItW0oXXIe; REC_T_ID=c40100c9-4bb
 SHOPEE_GRAPHQL_URL = "https://affiliate.shopee.vn/api/v1/graphql"
 
 def get_shopee_short_link(original_url, sub_id_1="instagram"):
-    # 2. Tu dong tim va trich xuat ma CSRF Token tu trong chuoi Cookie
     csrf_token = ""
     match = re.search(r'csrftoken=([a-zA-Z0-9]+)', SHOPEE_COOKIE)
     if match:
         csrf_token = match.group(1)
 
-    # 3. Bo sung cac Header bao mat bat buoc cua Shopee
     headers = {
         "Cookie": SHOPEE_COOKIE,
         "Content-Type": "application/json",
@@ -37,18 +35,25 @@ def get_shopee_short_link(original_url, sub_id_1="instagram"):
     
     try:
         response = requests.post(SHOPEE_GRAPHQL_URL, json=payload, headers=headers)
-        data = response.json()
         
-        # In ket qua ra log cua Render de kiem tra neu loi
-        print("Response tu Shopee:", data)
+        # IN NGUYEN VAN CAU TRA LOI CUA SHOPEE RA LOG DE BAT BENH
+        print("============== DEBUG SHOPEE ==============")
+        print(f"HTTP Status: {response.status_code}")
+        print(f"Raw Response: {response.text}")
+        print("==========================================")
+
+        try:
+            data = response.json()
+        except Exception as json_err:
+            print("[-] Shopee khong tra ve JSON, co the bi chan: ", json_err)
+            return None
         
-        # Parse ket qua tra ve de trich xuat link
         if "data" in data and data["data"] and data["data"].get("generateShortLink"):
             return data["data"]["generateShortLink"]["shortLink"]
         else:
             return None
     except Exception as e:
-        print("Loi ket noi: ", e)
+        print("[-] Loi Request: ", e)
         return None
 
 @app.route('/')
