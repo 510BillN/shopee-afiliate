@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template
-import requests
+from curl_cffi import requests
 import re
 
 app = Flask(__name__)
@@ -34,7 +34,7 @@ def get_shopee_short_link(original_url, sub_id_1="instagram"):
     }
     
     try:
-        response = requests.post(SHOPEE_GRAPHQL_URL, json=payload, headers=headers)
+        response = requests.post(SHOPEE_GRAPHQL_URL, json=payload, headers=headers, impersonate="chrome120")
         
         # IN NGUYEN VAN CAU TRA LOI CUA SHOPEE RA LOG DE BAT BENH
         print("============== DEBUG SHOPEE ==============")
